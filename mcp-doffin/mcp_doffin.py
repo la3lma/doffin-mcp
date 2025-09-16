@@ -7,8 +7,7 @@ import httpx
 from tenacity import retry, stop_after_attempt, wait_exponential
 from selectolax.parser import HTMLParser
 
-from mcp.server import Server
-from mcp.types import Tool
+from mcp.server.fastmcp import FastMCP
 
 BASE = "https://doffin.no"
 UA = "MCP-Doffin/1.0 (+contact@example.com)"
@@ -132,57 +131,50 @@ def parse_notice(html: str, url: str) -> Dict[str, Any]:
 
 
 async def main() -> None:
-    server = Server("mcp-doffin", "0.1.0", "Doffin MCP server (Python)")
+    server = FastMCP("mcp-doffin", instructions="Doffin MCP server (Python)")
 
-    search_schema = {
-        "type": "object",
-        "properties": {
-            "q": {"type": "string"},
-            "cpv": {"type": "array", "items": {"type": "string"}},
-            "buyer": {"type": "string"},
-            "published_from": {"type": "string", "pattern": r"^\d{4}-\d{2}-\d{2}$"},
-            "published_to": {"type": "string", "pattern": r"^\d{4}-\d{2}-\d{2}$"},
-            "deadline_to": {"type": "string", "pattern": r"^\d{4}-\d{2}-\d{2}$"},
-            "county": {"type": "string"},
-            "procedure": {"type": "string"},
-            "page": {"type": "integer", "minimum": 1},
+    @server.tool()
+    async def search_notices(
+        q: str = None,
+        cpv: List[str] = None,
+        buyer: str = None,
+        published_from: str = None,
+        published_to: str = None,
+        deadline_to: str = None,
+        county: str = None,
+        procedure: str = None,
+        page: int = 1,
+    ) -> Dict[str, Any]:
+        """Search public procurement notices on doffin.no"""
+        args = {
+            "q": q,
+            "cpv": cpv,
+            "buyer": buyer,
+            "published_from": published_from,
+            "published_to": published_to,
+            "deadline_to": deadline_to,
+            "county": county,
+            "procedure": procedure,
+            "page": page,
         }
-    }
-
-    get_schema = {
-        "type": "object",
-        "properties": {
-            "notice_id": {"type": "string"},
-            "url": {"type": "string", "format": "uri"},
-        },
-        "oneOf": [{"required": ["notice_id"]}, {"required": ["url"]}],
-    }
-
-    @server.tool(
-        Tool(
-            name="doffin.search_notices",
-            description="Search public procurement notices on doffin.no",
-            inputSchema=search_schema,
-        )
-    )
-    async def search_tool(args: Dict[str, Any]) -> Dict[str, Any]:
         url = build_search_url(args)
         html = await fetch(url)
         return {"results": parse_search(html), "source_url": url}
 
-    @server.tool(
-        Tool(
-            name="doffin.get_notice",
-            description="Fetch and parse a single notice page from doffin.no",
-            inputSchema=get_schema,
-        )
-    )
-    async def get_tool(args: Dict[str, Any]) -> Dict[str, Any]:
-        url = args.get("url") or f"{BASE}/notices/{args['notice_id']}"
-        html = await fetch(url)
-        return parse_notice(html, url)
+    @server.tool()
+    async def get_notice(
+        notice_id: str = None,
+        url: str = None,
+    ) -> Dict[str, Any]:
+        """Fetch and parse a single notice page from doffin.no"""
+        if not notice_id and not url:
+            raise ValueError("Either notice_id or url must be provided")
+        
+        target_url = url or f"{BASE}/notices/{notice_id}"
+        html = await fetch(target_url)
+        return parse_notice(html, target_url)
 
-    await server.run_stdio()
+    await server.run_stdio_async()
 
 
 if __name__ == "__main__":
