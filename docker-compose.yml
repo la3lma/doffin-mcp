@@ -1,0 +1,55 @@
+services:
+  doffin-mcp:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: doffin-mcp-server
+    restart: unless-stopped
+    environment:
+      # MCP server configuration
+      - NO_COLOR=1
+      # Optional: Add custom user agent (defaults to MCP-Doffin/1.0)
+      # - USER_AGENT=MCP-Doffin/1.0 (+your-contact@example.com)
+    # For stdio MCP communication, we typically don't need port mapping
+    # but this can be useful for debugging or if extending to HTTP MCP
+    # ports:
+    #   - "8000:8000"
+    
+    # Health check to ensure the container is running properly
+    healthcheck:
+      test: ["CMD", "python", "-c", "import mcp_doffin; print('OK')"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    
+    # Resource limits for security and performance
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+          cpus: '0.5'
+        reservations:
+          memory: 256M
+          cpus: '0.25'
+    
+    # Security options
+    security_opt:
+      - no-new-privileges:true
+    read_only: true
+    tmpfs:
+      - /tmp:size=100M,noexec,nosuid,nodev
+    
+    # If you need to persist any data or logs, uncomment and modify:
+    # volumes:
+    #   - ./logs:/app/logs:rw
+    
+    # Network isolation (optional)
+    networks:
+      - doffin-network
+
+networks:
+  doffin-network:
+    driver: bridge
+    driver_opts:
+      com.docker.network.bridge.name: doffin-mcp-br

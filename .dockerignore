@@ -1,0 +1,59 @@
+# Git and version control
+.git
+.gitignore
+.github/
+
+# Documentation
+README.md
+docs/
+examples/
+AGENT_INSTRUCTIONS.md
+QUICK_START.md
+
+# Test files and directories
+tests/
+pytest.ini
+mcp-doffin/test_requirements.txt
+
+# Python virtual environments and cache
+.venv/
+venv/
+env/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+.mypy_cache/
+.pytest_cache/
+htmlcov/
+.coverage
+
+# IDE and editor files
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.log
+*.tmp
+/tmp/
+
+# Docker files (avoid recursion)
+Dockerfile
+docker-compose*.yml
+.dockerignore
+
+# MCP configuration examples
+*.json.example
