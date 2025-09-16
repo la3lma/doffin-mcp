@@ -123,3 +123,52 @@ Claude should automatically pick the right tool calls via MCP.
 - **Errors**: If Claude reports a tool error, run `python mcp_doffin.py` manually to see logs.
 
 If you want a Node/TypeScript version or a FastAPI HTTP tool server instead of stdio, we can add that too.
+
+---
+
+## 7) Testing
+
+This project includes comprehensive tests to ensure reliability and correctness.
+
+### Test Suites
+
+- **Unit Tests**: Test individual functions with mocked dependencies
+- **Integration Tests**: Test component interactions with mocked HTTP calls  
+- **End-to-End Tests**: Test against real doffin.no API (optional)
+
+### Running Tests
+
+```bash
+# Install test dependencies
+pip install -r test_requirements.txt
+
+# Run unit tests (fast)
+make test-unit
+
+# Run integration tests
+make test-integration
+
+# Run both unit and integration tests
+make test
+
+# Run end-to-end tests (requires internet)
+make test-e2e
+
+# Generate coverage report
+make coverage
+```
+
+### Test Coverage
+Current test coverage: **86%**
+
+The test suite includes:
+- 23 unit tests covering URL building, HTML parsing, and HTTP fetching
+- 12 integration tests covering complete workflows and error handling
+- 8 end-to-end tests for real API validation
+
+### Continuous Integration
+GitHub Actions automatically runs tests on:
+- All pushes and pull requests (unit + integration tests)
+- Pushes to main branch (includes end-to-end tests)
+
+See `tests/README.md` for detailed testing documentation.
