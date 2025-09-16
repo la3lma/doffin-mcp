@@ -1,10 +1,12 @@
 services:
-  doffin-mcp:
+  doffin-mcp-server:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: doffin-mcp-server
-    restart: unless-stopped
+    # Restart policy set to "no" because stdio MCP servers exit when no stdin is available
+    # This is normal behavior - the container should only run when actively communicating
+    restart: "no"
     environment:
       # MCP server configuration
       - NO_COLOR=1
