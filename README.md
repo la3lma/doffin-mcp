@@ -30,6 +30,21 @@ When contributing to this repository, please:
 - Include examples for complex implementations
 - Test all code changes thoroughly
 
+## Docker Deployment
+
+For enhanced security, you can run the MCP server in a Docker container instead of directly on your system. This approach:
+
+- Runs the server with a non-root user in an isolated environment
+- Provides resource limits and network isolation
+- Reduces security risks compared to running as your user account
+
+See [DOCKER.md](DOCKER.md) for detailed Docker deployment instructions, or use the quick deployment script:
+
+```bash
+# Quick setup with Docker
+./deploy-docker.sh all
+```
+
 ## License
 
 This project is open source and available under the [MIT License](LICENSE).

@@ -1,0 +1,55 @@
+# Docker-specific configuration for Claude Desktop MCP integration
+#
+# This configuration shows how to use the dockerized doffin-mcp server
+# with Claude Desktop. There are several approaches:
+
+# Option 1: Docker with stdio (Recommended)
+# Create or update ~/.claude/mcp-servers/doffin-docker.json
+{
+  "command": "docker",
+  "args": [
+    "run", 
+    "--rm", 
+    "--interactive",
+    "--name", "doffin-mcp-stdio",
+    "doffin-mcp:latest"
+  ],
+  "env": {
+    "NO_COLOR": "1"
+  }
+}
+
+# Option 2: Docker Compose with stdio
+# Alternative approach using docker-compose
+# Create or update ~/.claude/mcp-servers/doffin-compose.json
+{
+  "command": "docker-compose",
+  "args": [
+    "-f", "/path/to/doffin-mcp/docker-compose.yml",
+    "run", 
+    "--rm",
+    "doffin-mcp"
+  ],
+  "env": {
+    "NO_COLOR": "1"
+  }
+}
+
+# Option 3: Pre-built container
+# If you've already built the image and want to use a persistent container:
+# Create or update ~/.claude/mcp-servers/doffin-container.json
+{
+  "command": "docker",
+  "args": [
+    "exec",
+    "-i",
+    "doffin-mcp-server",
+    "python", "mcp_doffin.py"
+  ],
+  "env": {
+    "NO_COLOR": "1"
+  }
+}
+
+# Note: For Option 3, you need to start the container first:
+# docker-compose up -d doffin-mcp
