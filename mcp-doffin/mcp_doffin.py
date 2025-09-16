@@ -8,7 +8,7 @@ from tenacity import retry, stop_after_attempt, wait_exponential
 from selectolax.parser import HTMLParser
 
 from mcp.server import Server
-from mcp.types import Tool, JSONSchema
+from mcp.types import Tool
 
 BASE = "https://doffin.no"
 UA = "MCP-Doffin/1.0 (+contact@example.com)"
@@ -134,27 +134,29 @@ def parse_notice(html: str, url: str) -> Dict[str, Any]:
 async def main() -> None:
     server = Server("mcp-doffin", "0.1.0", "Doffin MCP server (Python)")
 
-    search_schema = JSONSchema.object(
-        {
-            "q": JSONSchema.string().optional(),
-            "cpv": JSONSchema.array(JSONSchema.string()).optional(),
-            "buyer": JSONSchema.string().optional(),
-            "published_from": JSONSchema.string(pattern=r"^\d{4}-\d{2}-\d{2}$").optional(),
-            "published_to": JSONSchema.string(pattern=r"^\d{4}-\d{2}-\d{2}$").optional(),
-            "deadline_to": JSONSchema.string(pattern=r"^\d{4}-\d{2}-\d{2}$").optional(),
-            "county": JSONSchema.string().optional(),
-            "procedure": JSONSchema.string().optional(),
-            "page": JSONSchema.integer(minimum=1).optional(),
+    search_schema = {
+        "type": "object",
+        "properties": {
+            "q": {"type": "string"},
+            "cpv": {"type": "array", "items": {"type": "string"}},
+            "buyer": {"type": "string"},
+            "published_from": {"type": "string", "pattern": r"^\d{4}-\d{2}-\d{2}$"},
+            "published_to": {"type": "string", "pattern": r"^\d{4}-\d{2}-\d{2}$"},
+            "deadline_to": {"type": "string", "pattern": r"^\d{4}-\d{2}-\d{2}$"},
+            "county": {"type": "string"},
+            "procedure": {"type": "string"},
+            "page": {"type": "integer", "minimum": 1},
         }
-    )
+    }
 
-    get_schema = JSONSchema.object(
-        {
-            "notice_id": JSONSchema.string().optional(),
-            "url": JSONSchema.string(format="uri").optional(),
+    get_schema = {
+        "type": "object",
+        "properties": {
+            "notice_id": {"type": "string"},
+            "url": {"type": "string", "format": "uri"},
         },
-        oneOf=[{"required": ["notice_id"]}, {"required": ["url"]}],
-    )
+        "oneOf": [{"required": ["notice_id"]}, {"required": ["url"]}],
+    }
 
     @server.tool(
         Tool(
