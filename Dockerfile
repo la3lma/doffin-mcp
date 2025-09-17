@@ -43,4 +43,5 @@ USER mcpuser
 EXPOSE 8000
 
 # Default command to run the MCP server
-CMD ["python", "mcp_doffin.py"]
+# CMD ["python", "mcp_doffin.py"]
+CMD ["/bin/sleep", "9999999"]
